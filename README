@@ -1,0 +1,16 @@
+sephelper
+
+> IDA loader to help with SEPROM reverse engineering.
+
+I. Requierements
+	1. Any SEPROM (32bit / 64bit),
+	2. IDA Pro.
+
+II. Usage
+	> Copy sephelper into your IDA's loader directory (like 'ida64/Content/MacOS/loaders/'),
+	> Drag a SEPROM image into the IDA window,
+	> Profit !! (^0^)v
+
+II. Notes
+	> This project is based on @argp iBoot64helper,
+	> If you have any improvements, PullRequest are welcome !
