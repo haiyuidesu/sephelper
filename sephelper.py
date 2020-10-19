@@ -18,18 +18,31 @@ def function64(base_ea, base_end_ea, name, sequence):
   return ida_idaapi.BADADDR
 
 def find_function(seg_start, seg_end):
-  function64(seg_start, seg_end, "_bzero", "63 e4 7a 92  42 00 00 8b")
-  function64(seg_start, seg_end, "_memcpy", "63 80 00 91  63 e8 7b 92")
-  function64(seg_start, seg_end, "_reload_cache", "1f 87 08 d5")
-  function64(seg_start, seg_end, "_DERParseInteger", "00 01 00 35  e8 07 40 f9")
-  function64(seg_start, seg_end, "_DERDecodeSeqNext", "e8 03 00 f9  28 01 08 cb")
-  function64(seg_start, seg_end, "_verify_pkcs1_sig", "68 0e 00 54  a1 12 40 f9")
-  function64(seg_start, seg_end, "_DERParseSequence", "e0 01 00 35  e8 07 40 f9")
-  function64(seg_start, seg_end, "_boot_check_panic", "49 00 c0 d2  09 21 a8 f2")
-  function64(seg_start, seg_end, "_DERImg4DecodePayload", "33 03 00 b4  09 01 40 f9")
-  function64(seg_start, seg_end, "_Img4DecodeGetPayload", "00 81 c9 3c  20 00 80 3d")
-  function64(seg_start, seg_end, "_verify_chain_signatures", "?? 09 00 b4  68 12 40 f9")
-  function64(seg_start, seg_end, "_DERImg4DecodeFindInSequence", "60 02 80 3d  fd 7b 44 a9")
+  function = [
+    ("_bzero", "63 e4 7a 92  42 00 00 8b"),
+    ("_reload_cache", "1f 87 08 d5"),
+    ("_DERParseInteger", "00 01 00 35  e8 07 40 f9"),
+    ("_verify_pkcs1_sig", "68 0e 00 54  a1 12 40 f9"),
+    ("_DERParseSequence", "e0 01 00 35  e8 07 40 f9"),
+    ("_DERImg4DecodePayload", "33 03 00 b4  09 01 40 f9"),
+    ("_Img4DecodeGetPayload", "00 81 c9 3c  20 00 80 3d"),
+    ("_verify_chain_signatures", "?? 09 00 b4  68 12 40 f9"),
+    ("_DERImg4DecodeFindInSequence", "60 02 80 3d  fd 7b 44 a9"),
+    ("_Img4DecodeGetPropertyBoolean", "21 08 43 b2  e0 03 00 91"),
+    ("_Img4DecodeCopyPayloadDigest", "?? ?? 02 91  e0 03 15 aa"),
+    ("_DERImg4DecodeFindProperty", "00 00 80 52  a8 0a 43 b2"),
+    ("_DERDecodeSeqContentInit", "09 04 40 f9  08 01 09 8b"),
+    ("_DERParseBitString", "08 00 80 d2  5f 00 00 39"),
+    ("_boot_check_panic", "49 00 c0 d2  09 21 a8 f2"),
+    ("_DERDecodeSeqNext", "e8 03 00 f9  28 01 08 cb"),
+    ("_DERParseBoolean", "08 01 40 39  1f fd 03 71"),
+    ("_Img4DecodeInit", "20 01 00 35  c0 c2 00 91"),
+    ("__parse_chain", "5a 3d 00 12  77 3d 00 12"),
+    ("_memcpy", "63 80 00 91  63 e8 7b 92"),
+  ]
+
+  for (name_ea, seq_ea) in function:
+    function64(seg_start, seg_end, name_ea, seq_ea)
 
 def accept_file(fd, fname):
   ret = 0
@@ -128,9 +141,7 @@ def load_file(fd, flags, format):
 
   print('[sephelper]: finding some functions...')
 
-  # TODO : find functions (I am not good with armv7 so don't expect it now...)
-
-  find_function64(segm.start_ea, segment_end)
+  find_function(segm.start_ea, segment_end)
 
   print('[sephelper]: done !')
     
