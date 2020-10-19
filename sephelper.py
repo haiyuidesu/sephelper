@@ -5,6 +5,32 @@ import ida_segment
 import ida_bytes
 import ida_funcs
 
+def function64(base_ea, base_end_ea, name, sequence):
+  seq_ea = ida_search.find_binary(base_ea, base_end_ea, sequence, 0x10, ida_search.SEARCH_DOWN)
+
+  if seq_ea != ida_idaapi.BADADDR:
+    func = idaapi.get_func(seq_ea)
+    print("  [sephelper]: %s = 0x%x" % (name, func.start_ea))
+    idc.set_name(func.start_ea, name, idc.SN_CHECK)
+    return func.start_ea
+
+  print("  [sephelper]: %s = NULL" % name)
+  return ida_idaapi.BADADDR
+
+def find_function(seg_start, seg_end):
+  function64(seg_start, seg_end, "_bzero", "63 e4 7a 92  42 00 00 8b")
+  function64(seg_start, seg_end, "_memcpy", "63 80 00 91  63 e8 7b 92")
+  function64(seg_start, seg_end, "_reload_cache", "1f 87 08 d5")
+  function64(seg_start, seg_end, "_DERParseInteger", "00 01 00 35  e8 07 40 f9")
+  function64(seg_start, seg_end, "_DERDecodeSeqNext", "e8 03 00 f9  28 01 08 cb")
+  function64(seg_start, seg_end, "_verify_pkcs1_sig", "68 0e 00 54  a1 12 40 f9")
+  function64(seg_start, seg_end, "_DERParseSequence", "e0 01 00 35  e8 07 40 f9")
+  function64(seg_start, seg_end, "_boot_check_panic", "49 00 c0 d2  09 21 a8 f2")
+  function64(seg_start, seg_end, "_DERImg4DecodePayload", "33 03 00 b4  09 01 40 f9")
+  function64(seg_start, seg_end, "_Img4DecodeGetPayload", "00 81 c9 3c  20 00 80 3d")
+  function64(seg_start, seg_end, "_verify_chain_signatures", "?? 09 00 b4  68 12 40 f9")
+  function64(seg_start, seg_end, "_DERImg4DecodeFindInSequence", "60 02 80 3d  fd 7b 44 a9")
+
 def accept_file(fd, fname):
   ret = 0
   global segbit
@@ -40,7 +66,7 @@ def load_file(fd, flags, format):
 
   if segbit == 1:
     print("[sephelper]: detected a 32bit SEPROM !")
-    idaapi.set_processor_type('ARM:ARMv7-A', idaapi.SETPROC_LOADER_NON_FATAL)
+    idaapi.set_processor_type("arm:armv7-m", idaapi.SETPROC_LOADER_NON_FATAL)
     idaapi.get_inf_structure().lflags |= idaapi.LFLG_PC_FLAT
   else:
     print("[sephelper]: detected a 64bit SEPROM !")
@@ -93,14 +119,18 @@ def load_file(fd, flags, format):
         ea = ea - 0x2
 
         if (ea % 0x4) == 0 and ida_bytes.get_full_flags(ea) < 0x200:
-          print("[sephelper]: function found = 0x%x" % ea)
+          # print("[sephelper]: function added = 0x%x" % ea)
           ida_funcs.add_func(ea)
 
         ea = ea + 0x4
 
-  # TODO : find functions...
-
   idc.plan_and_wait(base_addr, segment_end)
+
+  print('[sephelper]: finding some functions...')
+
+  # TODO : find functions (I am not good with armv7 so don't expect it now...)
+
+  find_function64(segm.start_ea, segment_end)
 
   print('[sephelper]: done !')
     
