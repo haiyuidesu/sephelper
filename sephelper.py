@@ -20,6 +20,8 @@ def function64(base_ea, base_end_ea, name, sequence):
 def find_function(seg_start, seg_end):
   function = [
     ("_bzero", "63 e4 7a 92  42 00 00 8b"),
+    ("_ccn_cmp", "7f 00 05 eb  c0 80 80 9a"),
+    ("_ccn_sub", "84 00 04 eb  40 00 00 b5"),
     ("_reload_cache", "1f 87 08 d5"),
     ("_DERParseInteger", "00 01 00 35  e8 07 40 f9"),
     ("_verify_pkcs1_sig", "68 0e 00 54  a1 12 40 f9"),
@@ -28,6 +30,8 @@ def find_function(seg_start, seg_end):
     ("_Img4DecodeGetPayload", "00 81 c9 3c  20 00 80 3d"),
     ("_verify_chain_signatures", "?? 09 00 b4  68 12 40 f9"),
     ("_DERImg4DecodeFindInSequence", "60 02 80 3d  fd 7b 44 a9"),
+    ("_DERDecodeItemPartialBufferGetLength", "09 04 40 f9  3f 09 00 f1"),
+    ("_Img4DecodeEvaluateDictionaryProperties", "e0 03 1f 32  0a fd 7e d3"),
     ("_Img4DecodeGetPropertyBoolean", "21 08 43 b2  e0 03 00 91"),
     ("_Img4DecodeCopyPayloadDigest", "?? ?? 02 91  e0 03 15 aa"),
     ("_DERImg4DecodeFindProperty", "00 00 80 52  a8 0a 43 b2"),
@@ -35,10 +39,16 @@ def find_function(seg_start, seg_end):
     ("_DERParseBitString", "08 00 80 d2  5f 00 00 39"),
     ("_boot_check_panic", "49 00 c0 d2  09 21 a8 f2"),
     ("_DERDecodeSeqNext", "e8 03 00 f9  28 01 08 cb"),
+    ("_ccdigest_update", "e1 00 00 54  81 fe 46 d3"),
     ("_DERParseBoolean", "08 01 40 39  1f fd 03 71"),
     ("_Img4DecodeInit", "20 01 00 35  c0 c2 00 91"),
+    ("_ccdigest_init", "f4 03 00 aa  60 22 00 91"),
     ("__parse_chain", "5a 3d 00 12  77 3d 00 12"),
+    ("_cchmac_init", "69 22 00 91  8a 0b 80 52"),
+    ("_ccn_add", "84 00 00 b1  40 00 00 b5"),
+    ("_cc_muxp", "08 c1 20 cb  28 00 08 8a"),
     ("_memcpy", "63 80 00 91  63 e8 7b 92"),
+    ("_ccn_n", "63 04 00 91  5f 00 00 f1"),
   ]
 
   for (name_ea, seq_ea) in function:
