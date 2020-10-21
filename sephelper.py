@@ -9,10 +9,10 @@ def xref64(ea, name):
   ea_list = list(idautils.XrefsTo(ea))
 
   if ea_list[0].frm != ida_idaapi.BADADDR:
-  func_ea = ida_funcs.get_func(ea_list[0].frm).start_ea
-    print("  [sephelper]: %s = 0x%x" % (name, func_ea))
-    idc.set_name(func_ea, name, idc.SN_CHECK)
-    return func_ea
+    func = ida_funcs.get_func(ea_list[0].frm).start_ea
+    print("  [sephelper]: %s = 0x%x" % (name, func))
+    idc.set_name(func, name, idc.SN_CHECK)
+    return func
 
   print("  [sephelper]: %s = NULL" % name)
   return ida_idaapi.BADADDR
@@ -21,7 +21,7 @@ def function64(base_ea, base_end_ea, name, sequence):
   seq_ea = ida_search.find_binary(base_ea, base_end_ea, sequence, 0x10, ida_search.SEARCH_DOWN)
 
   if seq_ea != ida_idaapi.BADADDR:
-  func = idaapi.get_func(seq_ea)
+    func = idaapi.get_func(seq_ea)
     print("  [sephelper]: %s = 0x%x" % (name, func.start_ea))
     idc.set_name(func.start_ea, name, idc.SN_CHECK)
     return func.start_ea
@@ -44,13 +44,13 @@ def find_function(seg_start, seg_end):
   function64(seg_start, seg_end, "_DERImg4DecodeFindInSequence", "60 02 80 3d  fd 7b 44 a9")
   function64(seg_start, seg_end, "_DERDecodeItemPartialBufferGetLength", "09 04 40 f9  3f 09 00 f1")
   function64(seg_start, seg_end, "_DERImg4DecodeParseManifestProperties", "80 02 80 3d  a1 3a 00 91")
-    
-  function64(seg_start, seg_end, "_Img4DecodeInit", "20 01 00 35  c0 c2 00 91")
-  start_func = function64(seg_start, seg_end, "_Img4DecodeGetPayload", "00 81 c9 3c  20 00 80 3d")
-  function64(seg_start, seg_end, "_Img4DecodeGetPropertyData", "00 00 80 52  e8 17 40 f9")
-  function64(seg_start, seg_end, "_Img4DecodeCopyPayloadDigest", "?? ?? 02 91  e0 03 15 aa")
-  function64(seg_start, seg_end, "_Img4DecodeGetPropertyBoolean", "21 08 43 b2  e0 03 00 91")
+
   function64(seg_start, seg_end, "_Img4DecodeEvaluateDictionaryProperties", "e0 03 1f 32  0a fd 7e d3")
+  function64(seg_start, seg_end, "_Img4DecodeGetPropertyBoolean", "21 08 43 b2  e0 03 00 91")
+  function64(seg_start, seg_end, "_Img4DecodeCopyPayloadDigest", "?? ?? 02 91  e0 03 15 aa")
+  function64(seg_start, seg_end, "_Img4DecodeGetPropertyData", "00 00 80 52  e8 17 40 f9")
+  start_func = function64(seg_start, seg_end, "_Img4DecodeGetPayload", "00 81 c9 3c  20 00 80 3d")
+  function64(seg_start, seg_end, "_Img4DecodeInit", "20 01 00 35  c0 c2 00 91")
     
   function64(seg_start, seg_end, "_ccn_n", "63 04 00 91  5f 00 00 f1")
   function64(seg_start, seg_end, "_ccn_cmp", "7f 00 05 eb  c0 80 80 9a")
@@ -58,19 +58,17 @@ def find_function(seg_start, seg_end):
   function64(seg_start, seg_end, "_ccn_add", "84 00 00 b1  40 00 00 b5")
   function64(seg_start, seg_end, "_cc_muxp", "08 c1 20 cb  28 00 08 8a")
   function64(seg_start, seg_end, "_cchmac_init", "69 22 00 91  8a 0b 80 52")
-  function64(seg_start, seg_end, "_ccdigest_update", "e1 00 00 54  81 fe 46 d3")
   function64(seg_start, seg_end, "_ccdigest_init", "f4 03 00 aa  60 22 00 91")
+  function64(seg_start, seg_end, "_ccdigest_update", "e1 00 00 54  81 fe 46 d3")
 
-    xref64(start_func, "_image4_load")
-  function64(seg_start, seg_end, "_bzero", "63 e4 7a 92  42 00 00 8b")
-  function64(seg_start, seg_end, "_memcpy", "63 80 00 91  63 e8 7b 92")
-  function64(seg_start, seg_end, "__parse_chain", "5a 3d 00 12  77 3d 00 12")
-  function64(seg_start, seg_end, "_reload_cache", "1f 87 08 d5")
+  function64(seg_start, seg_end, "_verify_chain_signatures", "?? 09 00 b4  68 12 40 f9")
   function64(seg_start, seg_end, "_boot_check_panic", "49 00 c0 d2  09 21 a8 f2")
   function64(seg_start, seg_end, "_verify_pkcs1_sig", "68 0e 00 54  a1 12 40 f9")
-  function64(seg_start, seg_end, "_verify_chain_signatures", "?? 09 00 b4  68 12 40 f9")
-
-  function64(seg_start, seg_end, name_ea, seq_ea)
+  function64(seg_start, seg_end, "_reload_cache", "1f 87 08 d5")
+  function64(seg_start, seg_end, "__parse_chain", "5a 3d 00 12  77 3d 00 12")
+  xref64(start_func, "_image4_load")
+  function64(seg_start, seg_end, "_memcpy", "63 80 00 91  63 e8 7b 92")
+  function64(seg_start, seg_end, "_bzero", "63 e4 7a 92  42 00 00 8b")
 
 def accept_file(fd, fname):
   ret = 0
