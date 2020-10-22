@@ -5,18 +5,6 @@ import ida_segment
 import ida_bytes
 import ida_funcs
 
-def xref64(ea, name):
-  ea_list = list(idautils.XrefsTo(ea))
-
-  if ea_list[0].frm != ida_idaapi.BADADDR:
-    func = ida_funcs.get_func(ea_list[0].frm).start_ea
-    print("  [sephelper]: %s = 0x%x" % (name, func))
-    idc.set_name(func, name, idc.SN_CHECK)
-    return func
-
-  print("  [sephelper]: %s = NULL" % name)
-  return ida_idaapi.BADADDR
-
 def function64(base_ea, base_end_ea, name, sequence):
   seq_ea = ida_search.find_binary(base_ea, base_end_ea, sequence, 0x10, ida_search.SEARCH_DOWN)
 
@@ -29,8 +17,12 @@ def function64(base_ea, base_end_ea, name, sequence):
   print("  [sephelper]: %s = NULL" % name)
   return ida_idaapi.BADADDR
 
+# Registers.
+# https://siguza.github.io/APRR/
+# https://gist.github.com/bazad/42054285391c6e0dcd0ede4b5f969ad2
+
 def find_function(seg_start, seg_end):
-  function64(seg_start, seg_end, "_DEROiCompare", "a1 01 00 b4  02 05 40 f9")
+  function64(seg_start, seg_end, "_DEROidCompare", "a1 01 00 b4  02 05 40 f9")
   function64(seg_start, seg_end, "_DERImg4Decode", "61 03 00 54  88 26 40 a9")
   function64(seg_start, seg_end, "_DERParseBoolean", "08 01 40 39  1f fd 03 71")
   function64(seg_start, seg_end, "_DERParseInteger", "00 01 00 35  e8 07 40 f9")
@@ -49,7 +41,7 @@ def find_function(seg_start, seg_end):
   function64(seg_start, seg_end, "_Img4DecodeGetPropertyBoolean", "21 08 43 b2  e0 03 00 91")
   function64(seg_start, seg_end, "_Img4DecodeCopyPayloadDigest", "?? ?? 02 91  e0 03 15 aa")
   function64(seg_start, seg_end, "_Img4DecodeGetPropertyData", "00 00 80 52  e8 17 40 f9")
-  start_func = function64(seg_start, seg_end, "_Img4DecodeGetPayload", "00 81 c9 3c  20 00 80 3d")
+  function64(seg_start, seg_end, "_Img4DecodeGetPayload", "00 81 c9 3c  20 00 80 3d")
   function64(seg_start, seg_end, "_Img4DecodeInit", "20 01 00 35  c0 c2 00 91")
     
   function64(seg_start, seg_end, "_ccn_n", "63 04 00 91  5f 00 00 f1")
@@ -62,13 +54,18 @@ def find_function(seg_start, seg_end):
   function64(seg_start, seg_end, "_ccdigest_update", "e1 00 00 54  81 fe 46 d3")
 
   function64(seg_start, seg_end, "_verify_chain_signatures", "?? 09 00 b4  68 12 40 f9")
+  function64(seg_start, seg_end, "_read_counter_py_reg_el0", "20 e0 3b d5")
+  function64(seg_start, seg_end, "_write_ktrr_unknown_el1", "a0 f2 1c d5")
   function64(seg_start, seg_end, "_boot_check_panic", "49 00 c0 d2  09 21 a8 f2")
   function64(seg_start, seg_end, "_verify_pkcs1_sig", "68 0e 00 54  a1 12 40 f9")
+  function64(seg_start, seg_end, "_parse_extensions", "e9 23 00 91  35 81 00 91")
+  function64(seg_start, seg_end, "_read_ctrr_lock", "40 f2 3c d5")
   function64(seg_start, seg_end, "_reload_cache", "1f 87 08 d5")
-  function64(seg_start, seg_end, "__parse_chain", "5a 3d 00 12  77 3d 00 12")
-  xref64(start_func, "_image4_load")
+  function64(seg_start, seg_end, "_parse_chain", "5a 3d 00 12  77 3d 00 12")
+  function64(seg_start, seg_end, "_memset", "21 1c 40 92  e3 c3 00 b2")
   function64(seg_start, seg_end, "_memcpy", "63 80 00 91  63 e8 7b 92")
   function64(seg_start, seg_end, "_bzero", "63 e4 7a 92  42 00 00 8b")
+  function64(seg_start, seg_end, "_panic", "e8 03 00 91  16 81 00 91") # doubt
 
 def accept_file(fd, fname):
   ret = 0
