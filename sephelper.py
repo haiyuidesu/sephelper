@@ -28,10 +28,14 @@ def find_function(seg_start, seg_end):
   func64(seg_start, seg_end, "_DERParseInteger", "00 01 00 35  e8 07 40 f9")
   func64(seg_start, seg_end, "_DERParseSequence", "e0 01 00 35  e8 07 40 f9")
   func64(seg_start, seg_end, "_DERDecodeSeqNext", "e8 03 00 f9  28 01 08 cb")
+  func64(seg_start, seg_end, "_DERParseInteger64", "0b 15 40 38  4b dd 78 b3")
   func64(seg_start, seg_end, "_DERParseBitString", "08 00 80 d2  5f 00 00 39")
   func64(seg_start, seg_end, "_DERImg4DecodePayload", "33 03 00 b4  09 01 40 f9")
   func64(seg_start, seg_end, "_DERImg4DecodeProperty", "e8 07 40 b9  08 09 43 b2")
+  func64(seg_start, seg_end, "_DERParseSequenceContent", "ec 03 8c 1a  2d 69 bc 9b")
   func64(seg_start, seg_end, "_DERDecodeSeqContentInit", "09 04 40 f9  08 01 09 8b")
+  func64(seg_start, seg_end, "_DERImg4DecodeTagCompare", "f3 03 01 aa  08 04 40 f9")
+  func64(seg_start, seg_end, "_DERImg4DecodeRestoreInfo", "a1 29 a9 52  41 8a 86 72")
   func64(seg_start, seg_end, "_DERImg4DecodeFindProperty", "00 00 80 52  a8 0a 43 b2")
   func64(seg_start, seg_end, "_DERImg4DecodeFindInSequence", "60 02 80 3d  fd 7b 44 a9")
   func64(seg_start, seg_end, "_DERDecodeItemPartialBufferGetLength", "09 04 40 f9  3f 09 00 f1")
@@ -43,7 +47,7 @@ def find_function(seg_start, seg_end):
   func64(seg_start, seg_end, "_Img4DecodeGetPropertyData", "00 00 80 52  e8 17 40 f9")
   func64(seg_start, seg_end, "_Img4DecodeGetPayload", "00 81 c9 3c  20 00 80 3d")
   func64(seg_start, seg_end, "_Img4DecodeInit", "20 01 00 35  c0 c2 00 91")
-    
+
   func64(seg_start, seg_end, "_ccn_n", "63 04 00 91  5f 00 00 f1")
   func64(seg_start, seg_end, "_ccn_cmp", "7f 00 05 eb  c0 80 80 9a")
   func64(seg_start, seg_end, "_ccn_sub", "84 00 04 eb  40 00 00 b5")
@@ -155,9 +159,6 @@ def load_file(fd, flags, format):
         ea = ea - 0x2
 
         if (ea % 0x4) == 0 and ida_bytes.get_full_flags(ea) < 0x200:
-          if segbit == 1:
-            print("[sephelper]: function added = 0x%x" % ea)
-
           ida_funcs.add_func(ea)
 
         ea = ea + 0x4
