@@ -10,10 +10,11 @@ def func64(base_ea, base_end_ea, name, sequence):
 
   if seq_ea != ida_idaapi.BADADDR:
     func = idaapi.get_func(seq_ea)
-    print("  [sephelper]: %s = 0x%x" % (name, func.start_ea))
-    idc.set_name(func.start_ea, name, idc.SN_CHECK)
-    return func.start_ea
-
+    if func is not None:
+      print("  [sephelper]: %s = 0x%x" % (name, func.start_ea))
+      idc.set_name(func.start_ea, name, idc.SN_CHECK)
+      return func.start_ea
+      
   print("  [sephelper]: %s = NULL" % name)
   return ida_idaapi.BADADDR
 
@@ -80,7 +81,7 @@ def accept_file(fd, fname):
     fd.seek(0xc00)
     search = fd.read(0x17)
 
-    if search[:17] == "private_build...(":
+    if search[:17] == b"private_build...(":
       segbit = 2
       base_addr = 0x240000000 # 64bit (A11+)
       ret = { "format" : "SEPROM (AArch64)", "processor" : "arm" }
@@ -88,7 +89,7 @@ def accept_file(fd, fname):
     fd.seek(0x800)
     search = fd.read(0x10)
 
-    if search[:11] == "AppleSEPROM":
+    if search[:11] == b"AppleSEPROM":
       segbit = 1
       base_addr = 0x10000000 # 32bit (up to A10X)
       ret = { "format" : "SEPROM (AArch32)", "processor" : "arm" }
