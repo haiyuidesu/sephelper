@@ -76,7 +76,7 @@ def file_info(version):
     version = int(version.split(".")[0])
 
     # 64bit (A17+), 64bit (A15+), 32bit (A7-A10X)
-    return (2, 0x2a0000000) if version >= 834 else (2, 0x25C000000) if version >= 520 else (1, 0x10000000)
+    return (2, 0x2a0000000) if version >= 834 else (2, 0x25c000000) if version >= 520 else (1, 0x10000000)
 
 def accept_file(fd, fname):
     ret = 0
@@ -92,19 +92,19 @@ def accept_file(fd, fname):
     if search.startswith("private_build...("):
         segbit = 2
         base_addr = 0x240000000  # 64bit (A11+)
-        return {"format": "SEPROM (AArch64)", "processor": "arm"}
+        return { "format": "SEPROM (AArch64)", "processor": "arm" }
     elif search.startswith("AppleSEPROM-"):
         version = search[12:]
         segbit, base_addr = file_info(version)
-        return {"format": "SEPROM (AArch64)", "processor": "arm"}
+        return { "format": "SEPROM (AArch64)", "processor": "arm" }
   
     fd.seek(0x800) # 32bit SEPROM versions are located at 0x800
     search = fd.read(0x10)
 
-    if search.startswith(b"AppleSEPROM-"):
+    if search.startswith("AppleSEPROM-"):
         version = search[12:]
         segbit, base_addr = file_info(version)
-        return {"format": "SEPROM (AArch32)", "processor": "arm"}
+        return { "format": "SEPROM (AArch32)", "processor": "arm" }
 
     return ret
 
@@ -177,7 +177,8 @@ def load_file(fd, flags, format):
 
   print('[sephelper]: finding some functions...')
 
-  find_function(segm.start_ea, segment_end)
+  if segbit == 2:
+    find_function(segm.start_ea, segment_end) # only for 64bit SEPROMs
 
   print('[sephelper]: done !')
     
