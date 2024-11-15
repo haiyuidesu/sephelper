@@ -1,14 +1,12 @@
 import idc
 import idaapi
-import ida_search
-import ida_segment
 import ida_bytes
 import ida_funcs
 
 def func64(base_ea, base_end_ea, name, sequence):
-  seq_ea = ida_search.find_binary(base_ea, base_end_ea, sequence, 0x10, ida_search.SEARCH_DOWN)
+  seq_ea = idc.find_bytes(sequence, base_ea, range_end=base_end_ea)
 
-  if seq_ea != ida_idaapi.BADADDR:
+  if seq_ea != idc.BADADDR:
     func = idaapi.get_func(seq_ea)
     if func is not None:
       print("  [sephelper]: %s = 0x%x" % (name, func.start_ea))
@@ -16,7 +14,7 @@ def func64(base_ea, base_end_ea, name, sequence):
       return func.start_ea
       
   print("  [sephelper]: %s = NULL" % name)
-  return ida_idaapi.BADADDR
+  return idc.BADADDR
 
 # Registers.
 # https://siguza.github.io/APRR/
@@ -89,11 +87,11 @@ def accept_file(fd, fname):
     fd.seek(0xc00) # 64bit SEPROM versions are located at 0xC00
     search = fd.read(0x1A)
 
-    if search.startswith("private_build...("):
+    if search.startswith(b"private_build...("):
         segbit = 2
         base_addr = 0x240000000  # 64bit (A11+)
         return { "format": "SEPROM (AArch64)", "processor": "arm" }
-    elif search.startswith("AppleSEPROM-"):
+    elif search.startswith(b"AppleSEPROM-"):
         version = search[12:]
         segbit, base_addr = file_info(version)
         return { "format": "SEPROM (AArch64)", "processor": "arm" }
@@ -101,7 +99,7 @@ def accept_file(fd, fname):
     fd.seek(0x800) # 32bit SEPROM versions are located at 0x800
     search = fd.read(0x10)
 
-    if search.startswith("AppleSEPROM-"):
+    if search.startswith(b"AppleSEPROM-"):
         version = search[12:]
         segbit, base_addr = file_info(version)
         return { "format": "SEPROM (AArch32)", "processor": "arm" }
@@ -117,11 +115,9 @@ def load_file(fd, flags, format):
   if segbit == 1:
     print("[sephelper]: detected a 32bit SEPROM !")
     idaapi.set_processor_type("arm:armv7-m", idaapi.SETPROC_LOADER_NON_FATAL)
-    idaapi.get_inf_structure().lflags |= idaapi.LFLG_PC_FLAT
   else:
     print("[sephelper]: detected a 64bit SEPROM !")
-    idaapi.set_processor_type("arm", idaapi.SETPROC_LOADER_NON_FATAL)
-    idaapi.get_inf_structure().lflags |= idaapi.LFLG_64BIT
+    idc.set_processor_type("arm:armv8-a", idc.SETPROC_LOADER_NON_FATAL)
 
   if (flags & idaapi.NEF_RELOAD) != 0: return 1
 
@@ -162,16 +158,18 @@ def load_file(fd, flags, format):
     hexcode = ["03 AF", "02 AF", "01 AF"]
 
   for prologue in hexcode:
-    while ea != idc.BADADDR:
-      ea = ida_search.find_binary(ea, segment_end, prologue, 0x10, ida_search.SEARCH_DOWN)
+    prologue_bytes = bytes.fromhex(prologue.replace(" ", ""))
 
-      if ea != idc.BADADDR:
-        ea = ea - 0x2
+    while ea < segment_end:
+        ea = idc.find_bytes(prologue_bytes, ea, range_end=segment_end)
 
-        if (ea % 0x4) == 0 and ida_bytes.get_full_flags(ea) < 0x200:
-          ida_funcs.add_func(ea)
+        if ea != idc.BADADDR:
+            ea = ea - 0x2
 
-        ea = ea + 0x4
+            if (ea % 0x4) == 0 and ida_bytes.get_full_flags(ea) < 0x200:
+                ida_funcs.add_func(ea)
+
+            ea = ea + 0x4
 
   idc.plan_and_wait(base_addr, segment_end)
 
