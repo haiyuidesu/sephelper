@@ -1,11 +1,28 @@
+import sys
 import idc
 import idaapi
 import ida_bytes
 import ida_funcs
 
-def func64(base_ea, base_end_ea, name, sequence):
-  seq_ea = idc.find_bytes(sequence, base_ea, range_end=base_end_ea)
+# Check the IDA version and Python version
+ida_version = float(idaapi.get_kernel_version())
+python_version = sys.version_info
 
+if ida_version < 9.0:
+  # For IDA versions under 9.0, use additional imports
+  import ida_search
+
+def search_for_bytes(prologue_bytes, ea, segment_end):
+  if ida_version < 9.0:
+    # For IDA versions under 9.0, use idc.search_bytes
+    return ida_search.find_binary(ea, segment_end, prologue_bytes, 0x10, ida_search.SEARCH_DOWN)
+  else:
+    # For IDA versions 9.0 and above, use ida_bytes.search
+    return idc.find_bytes(prologue_bytes, ea, range_end=segment_end)
+
+def func64(base_ea, base_end_ea, name, sequence):
+  seq_ea = search_for_bytes(sequence, base_ea, base_end_ea)
+  
   if seq_ea != idc.BADADDR:
     func = idaapi.get_func(seq_ea)
     if func is not None:
@@ -158,10 +175,11 @@ def load_file(fd, flags, format):
     hexcode = ["03 AF", "02 AF", "01 AF"]
 
   for prologue in hexcode:
-    prologue_bytes = bytes.fromhex(prologue.replace(" ", ""))
+    if python_version >= (3, 0):
+      prologue = bytes.fromhex(prologue.replace(" ", ""))
 
     while ea < segment_end:
-        ea = idc.find_bytes(prologue_bytes, ea, range_end=segment_end)
+        ea = search_for_bytes(prologue, ea, segment_end)
 
         if ea != idc.BADADDR:
             ea = ea - 0x2
