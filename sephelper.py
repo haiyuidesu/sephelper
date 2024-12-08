@@ -88,6 +88,9 @@ def find_function(seg_start, seg_end):
   func64(seg_start, seg_end, "_panic", "e8 03 00 91  16 81 00 91") # doubt
 
 def file_info(version):
+    if python_version >= (3, 0):
+      version = version.decode('utf-8')
+    
     version = int(version.split(".")[0])
 
     # 64bit (A17+), 64bit (A15+), 32bit (A7-A10X)
