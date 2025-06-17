@@ -172,7 +172,7 @@ def load_file(fd, flags, format):
   ea = base_addr
   segment_end = idc.get_segm_attr(base_addr, idc.SEGATTR_END)
 
-  hexcode = ["BF A9", "BD A9"] # there is not PAC on SEPROM
+  hexcode = ["7F 23 03 D5", "BF A9", "BD A9"]
 
   if segbit == 1:
     hexcode = ["03 AF", "02 AF", "01 AF"]
